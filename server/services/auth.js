@@ -47,7 +47,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, don
 // Notice the Promise created in the second 'then' statement.  This is done
 // because Passport only supports callbacks, while GraphQL only supports promises
 // for async code!  Awkward!
-function signup({ email, password, req }) {
+var signup = function({ email, password, req }) {
   const user = new User({ email, password });
   if (!email || !password) { throw new Error('You must provide an email and password.'); }
 
@@ -64,21 +64,21 @@ function signup({ email, password, req }) {
         });
       });
     });
-}
+};
 
 // Logs in a user.  This will invoke the 'local-strategy' defined above in this
 // file. Notice the strange method signature here: the 'passport.authenticate'
 // function returns a function, as its indended to be used as a middleware with
 // Express.  We have another compatibility layer here to make it work nicely with
 // GraphQL, as GraphQL always expects to see a promise for handling async code.
-function login({ email, password, req }) {
+var login = function({ email, password, req }) {
   return new Promise((resolve, reject) => {
     passport.authenticate('local', (err, user) => {
-      if (!user) { reject('Invalid credentials.') }
+      if (!user) { reject('Invalid credentials.'); }
 
       req.login(user, () => resolve(user));
     })({ body: { email, password } });
   });
-}
+};
 
 module.exports = { signup, login };
